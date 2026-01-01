@@ -1,0 +1,15 @@
+# plugin.yml
+name: DualHandGlow
+version: 1.0
+# *** Main Class Path ใหม่ ***
+main: com.nonkungch.dualhandglow.DualHandGlow 
+api-version: 1.21
+author: NonKungCH
+
+commands:
+  offhand:
+    description: Swaps the item in your main hand and off hand.
+    usage: /<command>
+    aliases: [ofh] # เพิ่ม alias /ofh
+    permission: dualhandglow.swap 
+    permission-message: You do not have permission to use this command.

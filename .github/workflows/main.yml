@@ -1,0 +1,49 @@
+# .github/workflows/maven.yml
+
+name: Maven Build Plugin (DualHandGlow) # แก้ไขชื่อ Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # อนุญาตให้รัน Manual ได้
+  workflow_dispatch:
+
+jobs:
+  build:
+    # รันบนเครื่อง Linux
+    runs-on: ubuntu-latest
+    
+    # กำหนดให้ใช้ Java 21 ตามที่ระบุใน pom.xml
+    strategy:
+      matrix:
+        java: [ 21 ]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # ตั้งค่า Java Environment และ Caching Maven
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'maven' # เปิดใช้งาน Maven Cache
+
+    # สร้างและคอมไพล์ JAR ด้วย Maven
+    # clean package จะดาวน์โหลด Paper API และสร้าง JAR
+    - name: Build with Maven and Shade # ลบคำที่เกี่ยวข้องกับ LightAPI
+      run: mvn -B clean package --file pom.xml
+
+    # อัปโหลด Artifact (ไฟล์ JAR ที่เสร็จสมบูรณ์)
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DualHandGlow-${{ github.sha }}
+        # ชื่อไฟล์ JAR ที่ได้จาก pom.xml
+        path: target/DualHandGlow-1.0.jar 
+
+    - name: Build Success Message
+      run: echo "The DualHandGlow plugin has been successfully built and the JAR is available as an artifact."

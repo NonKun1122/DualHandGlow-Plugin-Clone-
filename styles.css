@@ -1,0 +1,345 @@
+/* นำเข้า Font Kanit และ Icons */
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+:root {
+    --mc-green-dark: #2e7d32;
+    --mc-green-light: #4caf50;
+    --mc-bg-color: #f0f2f5;
+    --mc-card-bg: #ffffff;
+    --mc-text-color: #333;
+    --mc-accent-color: #ff9800; /* สีส้มทองเหมือนแสงไฟ */
+}
+
+/* พื้นฐานและการทำให้ Responsive */
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: var(--mc-bg-color);
+    color: var(--mc-text-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.7;
+    transition: background-color 0.3s;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ส่วน Header และ Navigation */
+header {
+    background: linear-gradient(135deg, var(--mc-green-dark), #388e3c);
+    color: white;
+    padding: 30px 0;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+    font-size: 2.8em;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+}
+
+.edition {
+    font-size: 0.6em;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+nav {
+    margin-top: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    margin: 0 15px;
+    padding: 5px 10px;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.3s, color 0.3s;
+}
+
+nav a:hover {
+    border-bottom: 2px solid var(--mc-accent-color);
+    color: var(--mc-accent-color);
+}
+
+/* ส่วน Main Content */
+main {
+    padding: 40px 20px;
+}
+
+.card {
+    background-color: var(--mc-card-bg);
+    padding: 30px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid var(--mc-green-light);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+    color: var(--mc-green-dark);
+    font-size: 2em;
+    font-weight: 700;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+h3 {
+    color: var(--mc-accent-color);
+    font-size: 1.4em;
+    margin-top: 25px;
+}
+
+/* List สวยงาม */
+.feature-list {
+    list-style: none;
+    padding: 0;
+}
+
+.feature-list li {
+    padding-left: 1.5em;
+    text-indent: -1.5em;
+    margin-bottom: 10px;
+}
+
+.feature-list li::before {
+    content: "✔️";
+    display: block;
+    float: left;
+    width: 1.5em;
+    color: var(--mc-green-light);
+    font-weight: bold;
+}
+
+/* ตารางและโค้ด */
+.command-box {
+    background-color: #fff3e0;
+    border: 1px solid #ffcc80;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+}
+
+.command-box p {
+    margin: 5px 0;
+}
+
+code {
+    background-color: #e8e8e8;
+    color: var(--mc-green-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+pre {
+    background-color: #1c1c1c;
+    color: #e0f7fa;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 0.9em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Item Grid */
+.item-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.item-grid span {
+    background-color: var(--mc-green-light);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.item-grid i {
+    margin-right: 8px;
+    color: var(--mc-accent-color);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: #bbb;
+    margin-top: 30px;
+    border-top: 3px solid #2e2e2e;
+}
+
+/* Media Queries สำหรับ Responsive Design (ปรับให้พอดีหน้าจออัตโนมัติ) */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2em;
+    }
+    nav a {
+        display: block;
+        margin: 5px 0;
+    }
+    main {
+        padding: 20px 10px;
+    }
+    .card {
+        padding: 20px;
+    }
+    .item-grid {
+        justify-content: center;
+    }
+}
+/* --- NEW DOWNLOAD PAGE STYLES --- */
+
+/* Grid สำหรับไฟล์เวอร์ชันปลั๊กอินหลัก */
+.version-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.download-item-main {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-left: 5px solid var(--mc-green-light);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: box-shadow 0.3s, border-left-color 0.3s;
+}
+
+.download-item-main:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* สไตล์สำหรับเวอร์ชันล่าสุด */
+.download-item-main.latest {
+    border-left-color: var(--mc-accent-color); /* Highlight color */
+    background-color: #fffde7; /* Very light yellow background */
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+}
+
+.download-item-main.latest .version-tag {
+    background-color: #e65100; /* Darker orange */
+}
+
+
+.download-item-main .details {
+    margin-bottom: 15px;
+}
+
+.download-item-main .file-name {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--mc-green-dark);
+    display: block;
+    margin-bottom: 5px;
+}
+
+.download-item-main .version-tag {
+    background-color: var(--mc-green-dark);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.9em;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.download-item-main .version-tag.old {
+    background-color: #9e9e9e; /* Gray for old versions */
+}
+
+.download-item-main .support-version {
+    font-size: 0.85em;
+    color: #666;
+}
+
+.download-button {
+    background-color: #388e3c; 
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-align: center;
+    display: block; /* Make button full width of the item */
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Download Grid สำหรับไฟล์ย่อย (ภาษา, config) - ใช้ Grid เดิม แต่เพิ่มสไตล์เล็กน้อย */
+.download-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.download-item-mini {
+    background-color: #f1f8e9;
+    border: 1px solid #c8e6c9;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.download-item-mini .file-name {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    color: var(--mc-green-dark);
+}
+
+.download-item-mini .lang-note {
+    font-size: 0.8em;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.download-button-mini {
+    background-color: var(--mc-green-light);
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    width: 100%;
+    text-align: center;
+}
+
+/* Media Query ปรับปรุงเล็กน้อย */
+@media (max-width: 600px) {
+    .version-grid {
+        grid-template-columns: 1fr; /* ให้แสดงเป็นแถวเดียวบนมือถือ */
+    }
+    .download-item-main {
+        padding: 15px;
+    }
+}
+
