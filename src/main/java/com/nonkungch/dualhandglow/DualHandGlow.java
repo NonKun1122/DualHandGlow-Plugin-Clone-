@@ -14,8 +14,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -37,16 +36,12 @@ public class DualHandGlow extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        // [1] โหลด Config และจัดการไฟล์ภาษา
         saveDefaultConfig();
         createLangFiles();
         loadLang();
-        
-        // [2] ลงทะเบียน Event และเริ่มระบบแสง
         Bukkit.getPluginManager().registerEvents(this, this);
         startUpdater();
-        
-        getLogger().info("DualHandGlow v2.0 Fully Loaded!");
+        getLogger().info("DualHandGlow v2.1 (Sneak+Jump Support) Loaded!");
     }
 
     @Override
@@ -68,43 +63,60 @@ public class DualHandGlow extends JavaPlugin implements Listener {
         fakeOffhands.clear();
     }
 
-    // --- [ระบบสลับมือสำหรับมือถือ: แตะหน้าจอค้าง] ---
+    // --- [ระบบสลับมือใหม่: ย่อ + กระโดด] ---
     @EventHandler
-    public void onHandSwapInteract(PlayerInteractEvent e) {
+    public void onSneakJumpSwap(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        ItemStack mainHand = p.getInventory().getItemInMainHand();
-
-        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) 
-            && isLightItem(mainHand.getType())) {
-            
-            if (p.isSneaking()) return; // ย่อตัว = วางบล็อกปกติ
-
-            ItemStack offHand = p.getInventory().getItemInOffHand();
-            p.getInventory().setItemInOffHand(mainHand);
-            p.getInventory().setItemInMainHand(offHand);
-            
-            p.sendMessage(getMessage("command-swapped"));
-            p.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_GENERIC, 1.0f, 1.2f);
-            e.setCancelled(true);
+        
+        // เช็คว่าย่อตัวอยู่ และพิกัด Y เพิ่มขึ้น (กำลังกระโดด)
+        if (p.isSneaking() && e.getTo().getY() > e.getFrom().getY()) {
+            // เช็ค Velocity เพื่อให้แน่ใจว่าเป็นการกระโดดจริง ไม่ใช่แค่ก้าวขึ้นบล็อก
+            if (p.getVelocity().getY() > 0) {
+                performHandSwap(p);
+            }
         }
     }
 
-    // --- [ระบบคำนวณระดับแสงตามประเภทบล็อก] ---
+    // ฟังก์ชันกลางสำหรับสลับไอเทม
+    private void performHandSwap(Player p) {
+        ItemStack main = p.getInventory().getItemInMainHand();
+        ItemStack off = p.getInventory().getItemInOffHand();
+        
+        p.getInventory().setItemInOffHand(main);
+        p.getInventory().setItemInMainHand(off);
+        
+        p.sendMessage(getMessage("command-swapped"));
+        p.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_GENERIC, 1.0f, 1.2f);
+    }
+
+    // --- [ระบบคำสั่ง /ofh - แก้ไขให้ทุกคนใช้ได้] ---
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(getMessage("command-player-only"));
+            return true;
+        }
+        
+        Player p = (Player) sender;
+        if (cmd.getName().equalsIgnoreCase("offhand") || label.equalsIgnoreCase("ofh")) {
+            // ลบการเช็ค Permission ออกเพื่อให้ผู้เล่นทุกคนใช้งานได้ทันที
+            performHandSwap(p);
+            return true;
+        }
+        return false;
+    }
+
+    // --- [ระบบคำนวณระดับแสง] ---
     private int getLightLevel(Material type) {
         switch (type) {
             case TORCH: case LANTERN: case CAMPFIRE:
             case GLOWSTONE: case SEA_LANTERN: case SHROOMLIGHT:
             case OCHRE_FROGLIGHT: case PEARLESCENT_FROGLIGHT: case VERDANT_FROGLIGHT:
-            case CONDUIT: case BEACON: case LAVA_BUCKET: case SEA_PICKLE:
-                return 15;
-            case GLOW_BERRIES: case CANDLE: case JACK_O_LANTERN:
-                return 14;
-            case SOUL_TORCH: case SOUL_LANTERN: case SOUL_CAMPFIRE: case CRYING_OBSIDIAN:
-                return 10;
-            case MAGMA_BLOCK: case GLOW_LICHEN: case REDSTONE_TORCH:
-                return 7;
-            default:
-                return 0;
+            case CONDUIT: case BEACON: case LAVA_BUCKET: case SEA_PICKLE: return 15;
+            case GLOW_BERRIES: case CANDLE: case JACK_O_LANTERN: return 14;
+            case SOUL_TORCH: case SOUL_LANTERN: case SOUL_CAMPFIRE: case CRYING_OBSIDIAN: return 10;
+            case MAGMA_BLOCK: case GLOW_LICHEN: case REDSTONE_TORCH: return 7;
+            default: return 0;
         }
     }
 
@@ -117,12 +129,11 @@ public class DualHandGlow extends JavaPlugin implements Listener {
         mainTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 ItemStack off = p.getInventory().getItemInOffHand();
-                
                 if (off != null && isLightItem(off.getType())) {
-                    Location blockLoc = p.getLocation().clone().add(0, 1.2, 0); // ระดับอก
+                    Location blockLoc = p.getLocation().clone().add(0, 1.2, 0);
                     Block targetBlock = blockLoc.getBlock();
-
                     Location prev = playerLightBlock.get(p.getUniqueId());
+
                     if (prev == null || !isSameBlock(prev, blockLoc)) {
                         if (prev != null && prev.getBlock().getType() == Material.LIGHT) {
                             prev.getBlock().setType(Material.AIR);
@@ -137,9 +148,7 @@ public class DualHandGlow extends JavaPlugin implements Listener {
                     updateFakeOffhand(p, off);
                 } else {
                     Location prev = playerLightBlock.remove(p.getUniqueId());
-                    if (prev != null && prev.getBlock().getType() == Material.LIGHT) {
-                        prev.getBlock().setType(Material.AIR);
-                    }
+                    if (prev != null && prev.getBlock().getType() == Material.LIGHT) prev.getBlock().setType(Material.AIR);
                     removeFakeOffhand(p);
                 }
             }
@@ -151,7 +160,6 @@ public class DualHandGlow extends JavaPlugin implements Listener {
                && a.getBlockZ() == b.getBlockZ() && a.getWorld().equals(b.getWorld());
     }
 
-    // --- [ระบบไฟล์ภาษาและ Config] ---
     private void createLangFiles() {
         File folder = new File(getDataFolder(), "lang");
         if (!folder.exists()) folder.mkdirs();
@@ -162,15 +170,9 @@ public class DualHandGlow extends JavaPlugin implements Listener {
     private void loadLang() {
         File enFile = new File(getDataFolder(), "lang/en.yml");
         fallbackLangConfig = YamlConfiguration.loadConfiguration(enFile);
-        
         String langKey = getConfig().getString("language", "en");
         File langFile = new File(getDataFolder(), "lang/" + langKey + ".yml");
-        
-        if (langFile.exists()) {
-            langConfig = YamlConfiguration.loadConfiguration(langFile);
-        } else {
-            langConfig = fallbackLangConfig;
-        }
+        langConfig = langFile.exists() ? YamlConfiguration.loadConfiguration(langFile) : fallbackLangConfig;
     }
 
     private String getMessage(String key) {
@@ -178,26 +180,6 @@ public class DualHandGlow extends JavaPlugin implements Listener {
         return ChatColor.translateAlternateColorCodes('&', msg);
     }
 
-    // --- [คำสั่ง /offhand] ---
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(getMessage("command-player-only"));
-            return true;
-        }
-        Player p = (Player) sender;
-        if (cmd.getName().equalsIgnoreCase("offhand") || label.equalsIgnoreCase("ofh")) {
-            ItemStack main = p.getInventory().getItemInMainHand();
-            ItemStack off = p.getInventory().getItemInOffHand();
-            p.getInventory().setItemInOffHand(main);
-            p.getInventory().setItemInMainHand(off);
-            p.sendMessage(getMessage("command-swapped"));
-            return true;
-        }
-        return false;
-    }
-
-    // --- [ระบบแสดงผลไอเทม ArmorStand] ---
     private void updateFakeOffhand(Player p, ItemStack offItem) {
         UUID id = p.getUniqueId();
         ArmorStand stand = fakeOffhands.get(id);
